@@ -1,0 +1,15 @@
+{
+  "name": "matzip-server",
+  "version": "1.0.0",
+  "description": "matzip-server",
+  "main": "bin/www",
+  "scripts": {
+    "start": "node bin/www",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
