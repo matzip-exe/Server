@@ -1,15 +1,19 @@
 const http = require("http");
 const app = require("../src/app");
-
-//To-do DB Connection
-//-------------------
+const db = require("../src/config/dbConnection");
 
 var port = normalizePort(process.env.PORT || '8080');
 app.set('port', port);
 
-http.createServer(app).listen(port);
-console.log("Server Start!");
-console.log("Cur dir : " + __dirname);
+//DB Connection
+db.connect().then(()=>{
+  http.createServer(app).listen(port);
+  console.log("Server Start!");
+  console.log("Cur dir : " + __dirname);
+})
+.catch((err)=>{
+  console.log(err);
+});
 
 /**
  * Normalize a port into a number, string, or false.
