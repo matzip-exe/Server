@@ -2,7 +2,12 @@ const dotenv = require("dotenv");
 const { Client } = require("pg");
 
 //load env variables.
-dotenv.config();
+const envFound = dotenv.config();
+if (envFound.error) {
+  // This error should crash whole process
+  throw new Error("⚠️  Couldn't find .env file  ⚠️");
+}
+
 const DB_USER = process.env.DB_USER || undefined;
 const DB_HOST = process.env.DB_HOST || undefined;
 const DB_NAME = process.env.DB_NAME || undefined;
