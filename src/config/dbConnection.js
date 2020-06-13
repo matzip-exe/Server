@@ -1,5 +1,5 @@
 const dotenv = require("dotenv");
-const { Client } = require("pg");
+const { Pool } = require("pg");
 
 //load env variables.
 const envFound = dotenv.config();
@@ -22,4 +22,4 @@ const dbConfig = {
     port : DB_PORT
 };
 
-module.exports = new Client(dbConfig);
+module.exports = new Pool(dbConfig);

@@ -1,14 +1,24 @@
 const express = require("express");
 const router = express.Router();
-const staticUrl = "/user";
 
-router.use(staticUrl, (req, res,next)=>{
-    console.log("user router");
+const userService = require("../services/userService");
+//const staticUrl = "/user";
+
+router.use((req, res,next)=>{
     console.log("origin URL : " + req.originalUrl);
-    console.log("origin URL : " + req.baseUrl);
-    res.end();
+    next();
 });
 
+router.use("/checkRegion", async (req, res,next)=>{
+    
+    try{
+        let jsonResult = await userService.isDataExist();
+        res.status(200).json(jsonResult);
 
+    }catch (err) {
+        throw err;
+    }
+    
+});
 
 module.exports = router;
