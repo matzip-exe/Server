@@ -102,12 +102,15 @@ exports.getBizList = async function (region, userPosition, filter, index) {
                 ON visit.biz_name = changed.origin_name
             ) corrected_record
             GROUP BY biz_name
-            ORDER BY ` + dataFilter[filter] +` DESC
-            LIMIT ` + index.step + ` OFFSET ` + index.since + `
-        ) stats
-        LEFT OUTER JOIN business_info info
-        ON stats.biz_name = info.biz_name AND info.region = $1 
-        ORDER BY ` + dataFilter[filter] + ` DESC`;
+            ORDER BY ` + dataFilter[filter] +` DESC`;
+            
+    if (filter != "distance")
+        query += ` LIMIT ` + index.step + ` OFFSET ` + index.since
+        
+    query += `) stats
+    LEFT OUTER JOIN business_info info
+    ON stats.biz_name = info.biz_name AND info.region = $1 
+    ORDER BY ` + dataFilter[filter] + ` DESC`;
     
     try{
         let res = await db.query(query, [regionList[region]]);
