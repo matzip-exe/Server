@@ -9,14 +9,33 @@ router.use((req, res,next)=>{
     next();
 });
 
-router.use("/checkRegion", async (req, res,next)=>{
+
+router.get("/checkRegion", async (req, res,next)=>{
     
     try{
         let jsonResult = await userService.isDataExist();
         res.status(200).json(jsonResult);
 
     }catch (err) {
-        throw err;
+        console.error(err.message);
+    }
+    
+});
+
+
+router.get("/getBizList", async(req, res,next)=>{
+    
+    //test params
+    let region = "seoul"
+    let filter = "avg_cost"
+    let index = {since:0, step:10};
+    
+    try{
+        let jsonResult = await userService.getBizList(region, null, filter, index);
+        res.status(200).json(jsonResult);
+
+    }catch (err) {
+        console.error(err.message);
     }
     
 });

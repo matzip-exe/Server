@@ -7,12 +7,20 @@ app.set('port', port);
 
 //DB Connection
 db.connect().then(()=>{
-  http.createServer(app).listen(port, () => {
-    console.log(`
-      ################################################
-          🛡️  Server listening on port ${port} 🛡️ 
-      ################################################
-    `);
+  http.createServer(app).listen(port, (err) => {
+    if(err){
+      console.log(`
+        ################################################
+                  ⚠️ Fail to create server ⚠️
+        ################################################
+      `);
+    } else {
+      console.log(`
+        ################################################
+            🛡️  Server listening on port ${port} 🛡️ 
+        ################################################
+      `);
+    }
   });
 })
 .catch((err)=>{
