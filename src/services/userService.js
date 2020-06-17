@@ -1,4 +1,5 @@
 const db = require("../config/dbConnection");
+const naverSearch = require("../utils/naverSearch");
 
 const regionList = {
     //region : table name
@@ -87,7 +88,8 @@ exports.getBizList = async function (region, userPosition, filter, index) {
     }
     
     let query = `
-        SELECT stats.*, info.is_franchise, info.address, info.symbol
+        SELECT stats.*, 
+        info.is_franchise, info.subkeyword, info.symbol, info.biz_type, info.tel_num, info.address, info.road_address, info.geo_point
         FROM (
             SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
             FROM (
@@ -114,8 +116,13 @@ exports.getBizList = async function (region, userPosition, filter, index) {
     
     try{
         let res = await db.query(query, [regionList[region]]);
-
-        console.log(res.rows);
+        /*
+        res.rows.forEach(item => {
+            //Naver search.
+        })
+        */
+        naverSearch.search(res.rows[0].biz_name, res.rows[0].address);
+        console.log(res);
         
     } catch(e) {
         console.error(e.message);
@@ -123,7 +130,9 @@ exports.getBizList = async function (region, userPosition, filter, index) {
 
 };
 
-
+/**
+ *  To prevent SQL Injection.
+ */
 function verifyPrams(region, filter, index){
     /**
      * TODO : region must be in regionList.
