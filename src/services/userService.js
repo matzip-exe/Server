@@ -89,7 +89,7 @@ exports.getBizList = async function (region, userPosition, filter, index) {
     
     let query = `
         SELECT stats.*, 
-        info.is_franchise, info.subkeyword, info.symbol, info.biz_type, info.tel_num, info.address, info.road_address, info.geo_point
+        info.is_franchise, info.subkeyword, info.symbol, info.biz_type, info.tel_num, info.address, info.road_address, info.geo_point, info.last_updated
         FROM (
             SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
             FROM (
@@ -107,7 +107,7 @@ exports.getBizList = async function (region, userPosition, filter, index) {
             ORDER BY ` + dataFilter[filter] +` DESC`;
             
     if (filter != "distance")
-        query += ` LIMIT ` + index.step + ` OFFSET ` + index.since
+        query += ` LIMIT ` + index.step + ` OFFSET ` + index.since;
         
     query += `) stats
     LEFT OUTER JOIN business_info info
@@ -116,13 +116,37 @@ exports.getBizList = async function (region, userPosition, filter, index) {
     
     try{
         let res = await db.query(query, [regionList[region]]);
+        
+        //improve response speed up to 90% 
+        let start = Date.now();
+        res = res.rows.map(item => {
+            if(isOutdated(item)){
+                return naverSearch.search(item.biz_name, item.subkeyword);
+            } else {
+                return Promise.resolve(item);
+            }
+        });
+        res = await Promise.allSettled(res);
+        let end = Date.now();
+        console.log("2 : " + (end-start));
+        console.log(res[0].value);
+        
         /*
-        res.rows.forEach(item => {
-            //Naver search.
-        })
+        let start = Date.now();
+        var re;
+        for(let item of res.rows){
+            if(isOutdated(item)){
+                re = await naverSearch.search(item.biz_name, item.subkeyword);
+            } else {
+                re = item
+            }
+            
+        }
+        let end = Date.now();
+        console.log("1 : " + (end-start));
+        console.log(re)
         */
-        naverSearch.search(res.rows[0].biz_name, res.rows[0].address);
-        console.log(res);
+        
         
     } catch(e) {
         console.error(e.message);
@@ -140,4 +164,25 @@ function verifyPrams(region, filter, index){
      *      members of index must be zero or positive INT.
      */
     return true;
+}
+
+function isOutdated(item){
+    const dayMilis = 86400000;
+    
+    if(item.hasOwnProperty("last_updated")){
+        if(Date.now() - new Date(item.last_updated) > dayMilis){
+            console.log("outdated");
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+function bindSearchResult(bizInfo, searchResult) {
+    biz_info.biz_type
+    biz_info.tel_num
+    biz_info.address
+    biz_info.road_address
+    biz_info.geo_point
 }

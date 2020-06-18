@@ -4,13 +4,13 @@ const router = express.Router();
 const userService = require("../services/userService");
 //const staticUrl = "/user";
 
-router.use((req, res,next)=>{
+router.use((req, res, next)=>{
     console.log("origin URL : " + req.originalUrl);
     next();
 });
 
 
-router.get("/checkRegion", async (req, res,next)=>{
+router.get("/checkRegion", async (req, res, next)=>{
     
     try{
         let jsonResult = await userService.isDataExist();
@@ -23,7 +23,7 @@ router.get("/checkRegion", async (req, res,next)=>{
 });
 
 
-router.get("/getBizList", async(req, res,next)=>{
+router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     let region = "seoul"
