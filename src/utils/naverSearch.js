@@ -1,14 +1,27 @@
+/**
+ * TODO: the module 'request' is deprecated.
+ * Need to change the module for HTTP request.
+ */
 const request = require('request');
 const searchApiHeader = {
-    'X-Naver-Client-Id':process.env.NAVER_SEARCH_CID,
+    'X-Naver-Client-Id' : process.env.NAVER_SEARCH_CID,
     'X-Naver-Client-Secret': process.env.NAVER_SEARCH_CPW
 };
+const mapsApiHeader = {
+    'X-NCP-APIGW-API-KEY-ID' : process.env.NAVER_MAPS_CID,
+    'X-NCP-APIGW-API-KEY' : process.env.NAVER_MAPS_CPW
+};
+
 
 exports.search = async function(item) {
     try{
-        //NAVER search open api.
-        let result = await searchOpenApi(item.biz_name, item.subkeyword);
-        return result;
+        //NAVER open api.
+        let searchRes = await searchOpenApi(item.biz_name, item.subkeyword);
+        let latlng = await getLatLng(searchRes.address);
+        
+        searchRes.latlng = latlng;
+        
+        return searchRes;
     } catch(e){
         console.error(e.message);
     }
@@ -25,7 +38,9 @@ function searchOpenApi(keyword, subKeyword = null) {
         
         request.get(config, (error, response, body)=>{
             if (!error && response.statusCode == 200) {
-                resolve(body);
+                
+                //return only first search result.
+                resolve(JSON.parse(body).items[0]);
             } else {
                 reject(error);
             }
@@ -34,7 +49,25 @@ function searchOpenApi(keyword, subKeyword = null) {
     
 }
 
-function getLatLng(naverX, naverY){
+function getLatLng(address){
     
+    return new Promise(async (resolve, reject)=>{
+        let config = {
+               url: 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=' + encodeURI(address),
+               headers: mapsApiHeader
+        };
+        
+        request.get(config, (error, response, body)=>{
+            if (!error && response.statusCode == 200) {
+                
+                resolve({
+                    lat : JSON.parse(body).addresses[0].x,
+                    lng : JSON.parse(body).addresses[0].y
+                });
+            } else {
+                reject(error);
+            }
+        });
+    });
     
 }

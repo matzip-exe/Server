@@ -82,55 +82,35 @@ exports.isDataExist = function (){
 };
 
 exports.getBizList = async function (region, userPosition, filter, index) {
-    
-    if(!verifyPrams(region, filter, index)){
-        return ;
-    }
-    
-    let query = `
-        SELECT stats.*, 
-        info.is_franchise, info.subkeyword, info.symbol, info.biz_type, info.tel_num, info.address, info.road_address, info.geo_point, info.last_updated
-        FROM (
-            SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
-            FROM (
-                SELECT 
-                    CASE 
-                    WHEN changed.changed_name IS NULL 
-                    THEN visit.biz_name 
-                    ELSE changed.changed_name 
-                    END AS biz_name, visit.date, visit.total_cost, visit.num_of_people
-                FROM visit_records_` + region + ` visit 
-                LEFT OUTER JOIN changed_names_` + region + ` changed
-                ON visit.biz_name = changed.origin_name
-            ) corrected_record
-            GROUP BY biz_name
-            ORDER BY ` + dataFilter[filter] +` DESC`;
-            
-    if (filter != "distance")
-        query += ` LIMIT ` + index.step + ` OFFSET ` + index.since;
-        
-    query += `) stats
-    LEFT OUTER JOIN business_info info
-    ON stats.biz_name = info.biz_name AND info.region = $1 
-    ORDER BY ` + dataFilter[filter] + ` DESC`;
-    
+
     try{
+        let query = getBizListQuery(region, filter, index);
+        
         let res = await db.query(query, [regionList[region]]);
+        res.rows = [res.rows[0]];
         
         //improve response speed up to 90% 
         let start = Date.now();
+        
+        //create Promise objects for each item to search on NAVER.
         res = res.rows.map(item => {
+            
             if(isOutdated(item)){
-                return naverSearch.search(item);
+                return naverSearch.search(item)
+                .then(res => {
+                    bindSearchResult(item, res);
+                    //updateBizInfoDB(item);
+                    return item;
+                });
             } else {
-                return Promise.resolve(item);
+                return Promise.reject(item);
             }
         });
         
         res = await Promise.allSettled(res);
         let end = Date.now();
         console.log("2 : " + (end-start));
-        console.log(res[0].value);
+        console.log(res);
         
         /*
         let start = Date.now();
@@ -185,5 +165,46 @@ function bindSearchResult(bizInfo, searchResult) {
     bizInfo.tel_num = searchResult.telephone;
     bizInfo.address = searchResult.address;
     bizInfo.road_address = searchResult.roadAddress;
-    //bizInfo.geo_point = 
+    bizInfo.geo_point = searchResult.latlng;
+}
+
+function updateBizInfoDB(item) {
+    //TODO : update DB on business_info
+}
+
+function getBizListQuery(region, filter, index) {
+    
+    if(!verifyPrams(region, filter, index)){
+        throw new Error("Parameters are not valid.");
+    }
+    
+    let q = `
+        SELECT stats.*, 
+        info.region, info.is_franchise, info.subkeyword, info.symbol, info.biz_type, 
+        info.tel_num, info.address, info.road_address, info.geo_point, info.last_updated
+        FROM (
+            SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
+            FROM (
+                SELECT 
+                    CASE 
+                    WHEN changed.changed_name IS NULL 
+                    THEN visit.biz_name 
+                    ELSE changed.changed_name 
+                    END AS biz_name, visit.date, visit.total_cost, visit.num_of_people
+                FROM visit_records_` + region + ` visit 
+                LEFT OUTER JOIN changed_names_` + region + ` changed
+                ON visit.biz_name = changed.origin_name
+            ) corrected_record
+            GROUP BY biz_name
+            ORDER BY ` + dataFilter[filter] +` DESC`;
+            
+    if (filter != "distance")
+        q += ` LIMIT ` + index.step + ` OFFSET ` + index.since;
+        
+    q += `) stats
+    LEFT OUTER JOIN business_info info
+    ON stats.biz_name = info.biz_name AND info.region = $1 
+    ORDER BY ` + dataFilter[filter] + ` DESC`;
+    
+    return q;
 }
