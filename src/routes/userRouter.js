@@ -26,8 +26,8 @@ router.get("/checkRegion", async (req, res, next)=>{
 router.get("/getBizList", async (req, res, next)=>{
     
     //test params
-    let region = "seoul"
-    let filter = "avg_cost"
+    let region = "seoul";
+    let filter = "avg_cost";
     let index = {since:0, step:10};
     
     try{

@@ -121,11 +121,12 @@ exports.getBizList = async function (region, userPosition, filter, index) {
         let start = Date.now();
         res = res.rows.map(item => {
             if(isOutdated(item)){
-                return naverSearch.search(item.biz_name, item.subkeyword);
+                return naverSearch.search(item);
             } else {
                 return Promise.resolve(item);
             }
         });
+        
         res = await Promise.allSettled(res);
         let end = Date.now();
         console.log("2 : " + (end-start));
@@ -180,9 +181,9 @@ function isOutdated(item){
 }
 
 function bindSearchResult(bizInfo, searchResult) {
-    biz_info.biz_type
-    biz_info.tel_num
-    biz_info.address
-    biz_info.road_address
-    biz_info.geo_point
+    bizInfo.biz_type = searchResult.category;
+    bizInfo.tel_num = searchResult.telephone;
+    bizInfo.address = searchResult.address;
+    bizInfo.road_address = searchResult.roadAddress;
+    //bizInfo.geo_point = 
 }

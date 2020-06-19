@@ -1,29 +1,40 @@
 const request = require('request');
+const searchApiHeader = {
+    'X-Naver-Client-Id':process.env.NAVER_SEARCH_CID,
+    'X-Naver-Client-Secret': process.env.NAVER_SEARCH_CPW
+};
 
-exports.search = function(keyword, subKeyword = null) {
+exports.search = async function(item) {
+    try{
+        //NAVER search open api.
+        let result = await searchOpenApi(item.biz_name, item.subkeyword);
+        return result;
+    } catch(e){
+        console.error(e.message);
+    }
+};
+
+function searchOpenApi(keyword, subKeyword = null) {
     
-    return new Promise((resolve, reject) => {
-        let client_id = process.env.NAVER_SEARCH_CID;
-        let client_secret = process.env.NAVER_SEARCH_CPW;
-        
-        //JSON result
+    return new Promise((resolve, reject)=>{
         if(subKeyword) keyword = keyword + " " + subKeyword;
-        let api_url = 'https://openapi.naver.com/v1/search/local?query=' + encodeURI(keyword);
-        let options = {
-           url: api_url,
-           headers: {'X-Naver-Client-Id':client_id, 'X-Naver-Client-Secret': client_secret}
+        let config = {
+           url: 'https://openapi.naver.com/v1/search/local?query=' + encodeURI(keyword),
+           headers: searchApiHeader
         };
         
-        request.get(options, function (error, response, body) {
+        request.get(config, (error, response, body)=>{
             if (!error && response.statusCode == 200) {
-                console.log("SEARCH!!");
-                resolve(body)
+                resolve(body);
             } else {
                 reject(error);
-                
             }
         });
     });
     
-};
+}
 
+function getLatLng(naverX, naverY){
+    
+    
+}
