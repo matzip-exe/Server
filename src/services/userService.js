@@ -85,25 +85,28 @@ exports.getBizList = async function (region, userPosition, filter, index) {
 
     try{
         let query = getBizListQuery(region, filter, index);
-        
         let res = await db.query(query, [regionList[region]]);
-        res.rows = [res.rows[0]];
         
         //improve response speed up to 90% 
         let start = Date.now();
         
         //create Promise objects for each item to search on NAVER.
         res = res.rows.map(item => {
-            
             if(isOutdated(item)){
+                
                 return naverSearch.search(item)
                 .then(res => {
                     bindSearchResult(item, res);
-                    //updateBizInfoDB(item);
+                    updateBizInfoDB(item);
                     return item;
+                })
+                .catch(e => {
+                    //This branch returns invalid item.
+                    return Promise.reject(e);
                 });
+                
             } else {
-                return Promise.reject(item);
+                return Promise.resolve(item);
             }
         });
         

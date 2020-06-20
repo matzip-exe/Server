@@ -15,8 +15,10 @@ const mapsApiHeader = {
 
 exports.search = async function(item) {
     try{
+        let keyword = getSearchKeyword(item);
+        
         //NAVER open api.
-        let searchRes = await searchOpenApi(item.biz_name, item.subkeyword);
+        let searchRes = await searchOpenApi(keyword);
         let latlng = await getLatLng(searchRes.address);
         
         searchRes.latlng = latlng;
@@ -24,13 +26,13 @@ exports.search = async function(item) {
         return searchRes;
     } catch(e){
         console.error(e.message);
+        return Promise.reject(e);
     }
 };
 
-function searchOpenApi(keyword, subKeyword = null) {
+function searchOpenApi(keyword) {
     
     return new Promise((resolve, reject)=>{
-        if(subKeyword) keyword = keyword + " " + subKeyword;
         let config = {
            url: 'https://openapi.naver.com/v1/search/local?query=' + encodeURI(keyword),
            headers: searchApiHeader
@@ -40,7 +42,13 @@ function searchOpenApi(keyword, subKeyword = null) {
             if (!error && response.statusCode == 200) {
                 
                 //return only first search result.
-                resolve(JSON.parse(body).items[0]);
+                let res = JSON.parse(body).items[0];
+                if(res){
+                    resolve(res);
+                } else {
+                    reject(new Error("No search result - NAVER SEARCH with " + keyword));
+                }
+            
             } else {
                 reject(error);
             }
@@ -60,14 +68,35 @@ function getLatLng(address){
         request.get(config, (error, response, body)=>{
             if (!error && response.statusCode == 200) {
                 
-                resolve({
-                    lat : JSON.parse(body).addresses[0].x,
-                    lng : JSON.parse(body).addresses[0].y
-                });
+                let res = JSON.parse(body).addresses[0];
+                if(res){
+                    resolve({
+                        lat : res.x,
+                        lng : res.y
+                    });
+                } else {
+                    reject(new Error("No search result - NAVER MAPS with " + address));
+                }
             } else {
                 reject(error);
             }
         });
     });
     
+}
+
+function getSearchKeyword(item) {
+    
+    let keyword;
+    
+    if(item.subkeyword){
+        keyword = item.biz_name + ' ' + item.subkeyword;
+    } else {
+        if(item.region){
+            keyword = item.region + ' ' + item.biz_name;
+        } else {
+            throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record.");
+        }
+    }
+    return keyword;
 }
