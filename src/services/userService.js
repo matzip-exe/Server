@@ -84,53 +84,53 @@ exports.isDataExist = function (){
 exports.getBizList = async function (region, userPosition, filter, index) {
 
     try{
-        let query = getBizListQuery(region, filter, index);
-        let res = await db.query(query, [regionList[region]]);
+        //let query = getBizListQuery(region, filter, index);
+        let res = await queryBizList(region, filter, index);
         
         //improve response speed up to 90% 
         let start = Date.now();
         
-        //create Promise objects for each item to search on NAVER.
+        //create Promise objects for each item to process.
         res = res.rows.map(item => {
+            
+            let promiseChain;
             if(isOutdated(item)){
                 
-                return naverSearch.search(item)
+                //updates outdated data by searching with NAVER.
+                promiseChain = naverSearch.search(item)
                 .then(res => {
                     bindSearchResult(item, res);
-                    updateBizInfoDB(item);
+                    updateBizInfoDB(item);  //async
                     return item;
                 })
                 .catch(e => {
-                    //This branch returns invalid item.
+                    //returns invalid item.
                     return Promise.reject(e);
                 });
                 
             } else {
-                return Promise.resolve(item);
+                promiseChain = Promise.resolve(item);
+            }
+            
+            //query montly visit count
+            promiseChain = promiseChain.then(async item => {
+                let monthlyRes = await queryMonthlyVisit(region, item.biz_name);
+                item.monthly_visit = monthlyRes.rows;
+                return item;
+            });
+            
+            return promiseChain;
+        });
+
+        res = await Promise.allSettled(res);
+        res = res.map(item => {
+            if(item.status == 'fulfilled'){
+                return item.value;
             }
         });
-        
-        res = await Promise.allSettled(res);
         let end = Date.now();
         console.log("2 : " + (end-start));
         console.log(res);
-        
-        /*
-        let start = Date.now();
-        var re;
-        for(let item of res.rows){
-            if(isOutdated(item)){
-                re = await naverSearch.search(item.biz_name, item.subkeyword);
-            } else {
-                re = item
-            }
-            
-        }
-        let end = Date.now();
-        console.log("1 : " + (end-start));
-        console.log(re)
-        */
-        
         
     } catch(e) {
         console.error(e.message);
@@ -175,7 +175,11 @@ function updateBizInfoDB(item) {
     //TODO : update DB on business_info
 }
 
-function getBizListQuery(region, filter, index) {
+function updateEmpty2NULL(){
+    //TODO : convert empty str into NULL
+}
+
+function queryBizList(region, filter, index) {
     
     if(!verifyPrams(region, filter, index)){
         throw new Error("Parameters are not valid.");
@@ -208,6 +212,32 @@ function getBizListQuery(region, filter, index) {
     LEFT OUTER JOIN business_info info
     ON stats.biz_name = info.biz_name AND info.region = $1 
     ORDER BY ` + dataFilter[filter] + ` DESC`;
+
+    return db.query(q, [regionList[region]]);
+}
+
+function queryMonthlyVisit(region, bizName){
     
-    return q;
+    if(!verifyPrams(region)){
+        throw new Error("Parameters are not valid.");
+    }
+    
+    let q =`
+        SELECT date, COUNT(*)
+        FROM (
+	        SELECT 
+		        CASE 
+                WHEN changed.changed_name IS NULL 
+                THEN visit.biz_name 
+                ELSE changed.changed_name 
+                END AS biz_name, visit.date
+	        FROM visit_records_` + region + ` visit 
+	        LEFT OUTER JOIN changed_names_` + region + ` changed
+	        ON visit.biz_name = changed.origin_name
+	    ) corrected_record
+	    WHERE biz_name = $1
+        GROUP BY date
+    `;
+    
+    return db.query(q, [bizName]);
 }
