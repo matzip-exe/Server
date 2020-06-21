@@ -131,6 +131,7 @@ exports.getBizList = async function (region, userPosition, filter, index) {
         let end = Date.now();
         console.log("2 : " + (end-start));
         console.log(res);
+        console.log(res[0].monthly_visit);
         
     } catch(e) {
         console.error(e.message);

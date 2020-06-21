@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 const { Pool } = require("pg");
+const pgTypes = require("pg").types;
 
 //load env variables.
 const envFound = dotenv.config();
@@ -21,5 +22,11 @@ const dbConfig = {
     password : DB_PW,
     port : DB_PORT
 };
+
+//override date-parsing function
+pgTypes.setTypeParser(pgTypes.builtins.DATE,  function (value) {
+  if (!value) { return null }
+  return value
+})
 
 module.exports = new Pool(dbConfig);
