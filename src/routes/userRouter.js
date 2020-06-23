@@ -27,7 +27,7 @@ router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     let region = "seoul";
-    let filter = "avg_cost";
+    let filter = "distance";
     let index = {since:0, step:10};
     let userLatlng = {lat:37.250484 , lng:127.077548 }
     

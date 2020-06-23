@@ -93,13 +93,22 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         res = res.rows.map(async item => {
             
             if(isOutdated(item)){
-                
                 //updates outdated data by searching with NAVER.
-                let res = await naverSearch.search(item);
-                bindSearchResult(item, res);
-                item.distance = getDistance(item.latlng, userLatlng);
+                let searchRes;
+                try{
+                    searchRes = await naverSearch.search(item);
+                } catch(e){
+                    //for items with no search result.
+                    item.last_updated = getCurrentDate();
+                    updateDateOfBizInfo(item); //async
+                }
                 
-                updateBizInfoDB(item);  //async
+                if(searchRes) {
+                    bindSearchResult(item, searchRes);
+                    item.distance = getDistance(item.latlng, userLatlng);
+                    item.last_updated = getCurrentDate();
+                    updateBizInfoDB(item);  //async
+                }
             } 
             
             let monthlyRes = await queryMonthlyVisit(region, item.biz_name);
@@ -116,13 +125,21 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
             return resAry;
         }, []);
         */
+        //console.log(res);
+        
         let end = Date.now();
         console.log("2 : " + (end-start));
-        console.log(res[0].value);
-        console.log(res[0].monthly_visit);
+        res.forEach(item =>{
+            if(item.status == "rejected"){
+                //console.log(item);
+            }
+        });
+        
+        
+        //console.log(res[0].monthly_visit);
         
     } catch(e) {
-        console.error(e.message);
+        console.error("final" + e.message);
     }
 
 };
@@ -143,11 +160,10 @@ function isOutdated(item){
     const dayMilis = 86400000;
     
     if(item.hasOwnProperty("last_updated")){
-        if(Date.now() - new Date(item.last_updated) > dayMilis){
-            console.log("outdated");
+        if((item.last_updated == null) || (Date.now() - Date.parse(item.last_updated) > dayMilis)){
             return true;
-        }
-    }
+        } 
+    } 
     
     return false;
 }
@@ -177,8 +193,41 @@ function getDistance(bizLatlng, userLatlng) {
     return d.toFixed(1);
 }
 
+function getCurrentDate() {
+    let nowDate = new Date(); 
+    return nowDate.getFullYear()+'-'+(nowDate.getMonth()+1)+'-'+nowDate.getDate(); 
+}
+
 function updateBizInfoDB(item) {
-    //TODO : update DB on business_info
+    
+    //update DB on business_info
+    let q = `
+        UPDATE business_info
+        SET biz_type = $1,
+            tel_num = $2,
+            address = $3,
+            road_address = $4,
+            latlng = '( ` + item.latlng.lat + ',' + item.latlng.lng + `)',
+            last_updated = $5
+        WHERE biz_name = $6 AND region = $7
+    `;
+    
+    let params = [item.biz_type, item.tel_num, item.address, 
+        item.road_address, item.last_updated, item.biz_name, item.region];
+
+    return db.query(q, params).catch(e => {throw e;});
+}
+
+function updateDateOfBizInfo(item){
+    let q = `
+        UPDATE business_info
+        SET last_updated = $1
+        WHERE biz_name = $2 AND region = $3
+    `;
+    
+    let params = [item.last_updated, item.biz_name, item.region];
+    
+    return db.query(q, params).catch(e => {throw e;});
 }
 
 function updateEmpty2NULL(){
@@ -193,8 +242,7 @@ function queryBizList(region, filter, index) {
     
     let q = `
         SELECT stats.*, 
-        info.region, info.is_franchise, info.subkeyword, info.symbol, info.biz_type, 
-        info.tel_num, info.address, info.road_address, info.geo_point, info.last_updated
+        info.region, info.is_franchise, info.subkeyword, info.symbol, info.biz_type, info.latlng, info.last_updated
         FROM (
             SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
             FROM (

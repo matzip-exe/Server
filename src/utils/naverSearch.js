@@ -15,8 +15,8 @@ const mapsApiHeader = {
 
 exports.search = async function(item) {
     try{
-        let keyword = getSearchKeyword(item);
-        console.log(keyword);
+        var keyword = getSearchKeyword(item);
+
         //NAVER open api.
         let searchRes = await searchOpenApi(keyword);
         let latlng = await getLatLng(searchRes.address);
@@ -25,8 +25,13 @@ exports.search = async function(item) {
         
         return searchRes;
     } catch(e){
-        console.error(e.message);
-        return Promise.reject(e);
+        
+        console.error("naverSearch.js : " + e.message);
+        if(e.code == 429){
+            //do nothing - api rate limit.
+        } else {
+            return Promise.reject(e);
+        }
     }
 };
 
@@ -46,11 +51,18 @@ function searchOpenApi(keyword) {
                 if(res){
                     resolve(res);
                 } else {
-                    reject(new Error("No search result - NAVER SEARCH with " + keyword));
+                    reject(new Error("NAVER SEARCH - No search result with " + keyword));
                 }
             
             } else {
-                reject(error);
+                if(error){
+                    reject(error);
+                } else {
+                    
+                    error = new Error("NAVER SEARCH - " + response.statusCode + " error with " + keyword);
+                    error.code = response.statusCode;
+                    reject(error);
+                }
             }
         });
     });
@@ -75,10 +87,17 @@ function getLatLng(address){
                         lng : res.x
                     });
                 } else {
-                    reject(new Error("No search result - NAVER MAPS with " + address));
+                    reject(new Error("NAVER MAPS - No search result with " + address));
                 }
             } else {
-                reject(error);
+                if(error){
+                    reject(error);
+                } else {
+                    
+                    error = new Error("NAVER MAPS - " + response.statusCode + " error with " + address); 
+                    error.code = response.statusCode;
+                    reject(error);
+                }
             }
         });
     });
@@ -89,6 +108,7 @@ function getSearchKeyword(item) {
     
     let keyword;
     
+    /*
     if(item.subkeyword){
         keyword = item.biz_name + ' ' + item.subkeyword;
     } else {
@@ -98,5 +118,16 @@ function getSearchKeyword(item) {
             throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record.");
         }
     }
+    */
+    
+    if(item.region){
+        keyword = item.region + ' ' + item.biz_name
+        if(item.subkeyword){
+            keyword += ' ' + item.subkeyword;
+        } 
+    } else {
+        throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record.");
+    }
+    
     return keyword;
 }
