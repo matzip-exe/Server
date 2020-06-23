@@ -27,11 +27,12 @@ router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     let region = "seoul";
-    let filter = "visit_count";
+    let filter = "avg_cost";
     let index = {since:0, step:10};
+    let userLatlng = {lat:37.250484 , lng:127.077548 }
     
     try{
-        let jsonResult = await userService.getBizList(region, null, filter, index);
+        let jsonResult = await userService.getBizList(region, userLatlng, filter, index);
         res.status(200).json(jsonResult);
 
     }catch (err) {

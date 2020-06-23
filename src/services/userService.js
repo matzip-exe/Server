@@ -81,56 +81,44 @@ exports.isDataExist = function (){
     
 };
 
-exports.getBizList = async function (region, userPosition, filter, index) {
+exports.getBizList = async function (region, userLatlng, filter, index) {
 
     try{
-        //let query = getBizListQuery(region, filter, index);
         let res = await queryBizList(region, filter, index);
         
         //improve response speed up to 90% 
         let start = Date.now();
         
-        //create Promise objects for each item to process.
-        res = res.rows.map(item => {
+        //search items asynchronously
+        res = res.rows.map(async item => {
             
-            let promiseChain;
             if(isOutdated(item)){
                 
                 //updates outdated data by searching with NAVER.
-                promiseChain = naverSearch.search(item)
-                .then(res => {
-                    bindSearchResult(item, res);
-                    updateBizInfoDB(item);  //async
-                    return item;
-                })
-                .catch(e => {
-                    //returns invalid item.
-                    return Promise.reject(e);
-                });
+                let res = await naverSearch.search(item);
+                bindSearchResult(item, res);
+                item.distance = getDistance(item.latlng, userLatlng);
                 
-            } else {
-                promiseChain = Promise.resolve(item);
-            }
+                updateBizInfoDB(item);  //async
+            } 
             
-            //query montly visit count
-            promiseChain = promiseChain.then(async item => {
-                let monthlyRes = await queryMonthlyVisit(region, item.biz_name);
-                item.monthly_visit = monthlyRes.rows;
-                return item;
-            });
-            
-            return promiseChain;
+            let monthlyRes = await queryMonthlyVisit(region, item.biz_name);
+            item.monthly_visit = monthlyRes.rows;
+            return item;
         });
 
         res = await Promise.allSettled(res);
-        res = res.map(item => {
+        /*
+        res = res.reduce((resAry, item) => {
             if(item.status == 'fulfilled'){
-                return item.value;
+                resAry.push(item.value);
             }
-        });
+            return resAry;
+        }, []);
+        */
         let end = Date.now();
         console.log("2 : " + (end-start));
-        console.log(res);
+        console.log(res[0].value);
         console.log(res[0].monthly_visit);
         
     } catch(e) {
@@ -169,7 +157,24 @@ function bindSearchResult(bizInfo, searchResult) {
     bizInfo.tel_num = searchResult.telephone;
     bizInfo.address = searchResult.address;
     bizInfo.road_address = searchResult.roadAddress;
-    bizInfo.geo_point = searchResult.latlng;
+    bizInfo.latlng = searchResult.latlng;
+}
+
+function getDistance(bizLatlng, userLatlng) {
+
+    const R = 6371e3; // metres
+    const radLat1 = bizLatlng.lat * Math.PI/180;
+    const radLat2 = userLatlng.lat * Math.PI/180;
+    const radDLat = (userLatlng.lat-bizLatlng.lat) * Math.PI/180;
+    const radDLng = (userLatlng.lng-bizLatlng.lng) * Math.PI/180;
+
+    const a = Math.sin(radDLat/2) * Math.sin(radDLat/2) +
+          Math.cos(radLat1) * Math.cos(radLat2) *
+          Math.sin(radDLng/2) * Math.sin(radDLng/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const d = R * c / 1000; // in KM
+    return d.toFixed(1);
 }
 
 function updateBizInfoDB(item) {

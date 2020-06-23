@@ -16,7 +16,7 @@ const mapsApiHeader = {
 exports.search = async function(item) {
     try{
         let keyword = getSearchKeyword(item);
-        
+        console.log(keyword);
         //NAVER open api.
         let searchRes = await searchOpenApi(keyword);
         let latlng = await getLatLng(searchRes.address);
@@ -71,8 +71,8 @@ function getLatLng(address){
                 let res = JSON.parse(body).addresses[0];
                 if(res){
                     resolve({
-                        lat : res.x,
-                        lng : res.y
+                        lat : res.y,
+                        lng : res.x
                     });
                 } else {
                     reject(new Error("No search result - NAVER MAPS with " + address));
