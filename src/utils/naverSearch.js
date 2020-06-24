@@ -2,6 +2,7 @@
  * TODO: the module 'request' is deprecated.
  * Need to change the module for HTTP request.
  */
+ 
 const request = require('request');
 const searchApiHeader = {
     'X-Naver-Client-Id' : process.env.NAVER_SEARCH_CID,
@@ -28,6 +29,7 @@ exports.search = async function(item) {
         
         console.error("naverSearch.js : " + e.message);
         if(e.code == 429){
+            return null;
             //do nothing - api rate limit.
         } else {
             return Promise.reject(e);
@@ -107,18 +109,6 @@ function getLatLng(address){
 function getSearchKeyword(item) {
     
     let keyword;
-    
-    /*
-    if(item.subkeyword){
-        keyword = item.biz_name + ' ' + item.subkeyword;
-    } else {
-        if(item.region){
-            keyword = item.region + ' ' + item.biz_name;
-        } else {
-            throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record.");
-        }
-    }
-    */
     
     if(item.region){
         keyword = item.region + ' ' + item.biz_name
