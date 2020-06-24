@@ -89,6 +89,21 @@ exports.queryMonthlyVisit = function (region, bizName){
     return db.query(q, [bizName]);
 };
 
+exports.queryBizDetail = function (region, bizName){
+    
+    if(!verifyPrams(region)){
+        throw new Error("Parameters are not valid.");
+    }
+    
+    let q = `
+        SELECT tel_num, address, road_address
+        FROM business_info
+        WHERE region = $1 AND biz_name = $2
+    `;
+    
+    return db.query(q, [regionList[region], bizName]);
+}
+
 exports.updateBizInfoDB = function (item) {
     
     //update DB on business_info

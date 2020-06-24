@@ -27,12 +27,29 @@ router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     let region = "dongdaemoon";
-    let filter = "distance";
+    let filter = "visit_count";
     let index = {since:0, step:10};
     let userLatlng = {lat:37.250484 , lng:127.077548 }
     
     try{
         let jsonResult = await userService.getBizList(region, userLatlng, filter, index);
+        res.status(200).json(jsonResult);
+
+    }catch (err) {
+        console.error(err.message);
+    }
+    
+});
+
+
+router.get("/getBizDetail", async (req, res, next)=>{
+    
+    //test params
+    let region = "dongdaemoon";
+    let bizName = "천하복집"
+     
+    try{
+        let jsonResult = await userService.getBizDetail(region, bizName);
         res.status(200).json(jsonResult);
 
     }catch (err) {

@@ -93,12 +93,26 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         
         let end = Date.now();
         console.log("2 : " + (end-start));
-        
+        return res;
     } catch(e) {
-        console.error("userService.js : " + e.message);
+        console.error("userService.js/getBizList() : " + e.message);
     }
 
 };
+
+exports.getBizDetail = async function (region, bizName){
+    
+    try {
+        let res = await db.queryBizDetail(region, bizName);
+        res = res.rows[0]
+        
+        return res;
+        
+    } catch(e){
+        console.error("userService.js/getBizDetail() : " + e.message);
+    }
+    
+}
 
 function isOutdated(item){
     
