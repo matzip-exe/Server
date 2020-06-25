@@ -13,8 +13,8 @@ router.use((req, res, next)=>{
 router.get("/checkRegion", async (req, res, next)=>{
     
     try{
-        let jsonResult = await userService.isDataExist();
-        res.status(200).json(jsonResult);
+        let result = await userService.isDataExist();
+        res.status(200).json(wrapInJson(result));
 
     }catch (err) {
         console.error(err.message);
@@ -27,13 +27,13 @@ router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     let region = "dongdaemoon";
-    let filter = "visit_count";
+    let filter = "distance";
     let index = {since:0, step:10};
     let userLatlng = {lat:37.250484 , lng:127.077548 }
     
     try{
-        let jsonResult = await userService.getBizList(region, userLatlng, filter, index);
-        res.status(200).json(jsonResult);
+        let bizList = await userService.getBizList(region, userLatlng, filter, index);
+        res.status(200).json(wrapInJson(bizList));
 
     }catch (err) {
         console.error(err.message);
@@ -49,13 +49,17 @@ router.get("/getBizDetail", async (req, res, next)=>{
     let bizName = "천하복집"
      
     try{
-        let jsonResult = await userService.getBizDetail(region, bizName);
-        res.status(200).json(jsonResult);
+        let bizDetails = await userService.getBizDetail(region, bizName);
+        res.status(200).json(wrapInJson(bizDetails));
 
     }catch (err) {
         console.error(err.message);
     }
     
 });
+
+function wrapInJson(ary) {
+    return { item : ary };
+}
 
 module.exports = router;

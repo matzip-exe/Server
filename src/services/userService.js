@@ -3,6 +3,9 @@ const utils = require("../utils/utils");
 const naverSearch = require("../utils/naverSearch");
 const lists = require('../config/lists');
 
+const VisitRecord = require("../models/VisitRecord");
+const BusinessDetail = require("../models/BusinessDetail");
+
 const regionList = lists.regionList;
 const names = db.names;
 
@@ -17,12 +20,15 @@ exports.isDataExist = function (){
                 return item.relname.replace(names.visitTableNamePrefix,"");
             });
             
-            let strJSON = "";
+            let aryJSON = [];
             for(let region in regionList){
-                strJSON += '"' + region + '" : '+ existList.includes(region) + ",";
+                aryJSON.push({
+                    'region' : region ,
+                    'isExist': existList.includes(region)
+                });
             }
-            strJSON = "{" + strJSON.substring(0,strJSON.length-1) + "}";
-            resolve(JSON.parse(strJSON));
+            
+            resolve(aryJSON);
             
         }).catch(err => {
             setImmediate(()=>{
@@ -84,10 +90,11 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         //query monthly visit record
         res = res.map(async item => {
             let monthlyRes = await db.queryMonthlyVisit(region, item.biz_name);
-            item.monthly_visit = monthlyRes.rows;
-            return item; 
+            item.monthly_visits = monthlyRes.rows;
+            return new VisitRecord(item); 
         });
         res = await Promise.allSettledWithFulfilled(res);
+        
         
         console.log(res);
         
@@ -104,7 +111,10 @@ exports.getBizDetail = async function (region, bizName){
     
     try {
         let res = await db.queryBizDetail(region, bizName);
-        res = res.rows[0]
+        
+        res = res.rows.map(item => {
+            return new BusinessDetail(item);
+        });
         
         return res;
         

@@ -8,8 +8,8 @@ const names = {
     visitTableNamePrefix : "visit_records_",
     changeTableNamePrefix : "changed_names_",
     businessInfoTableName : "business_info",
-    visitTableNames : Object.keys(regionList).map(i => this.visitTableNamePrefix + i),
-    changeTableNames : Object.keys(regionList).map(i => this.changeTableNamePrefix + i)
+    get visitTableNames() { return Object.keys(regionList).map(i => this.visitTableNamePrefix + i) },
+    get changeTableNames() { return Object.keys(regionList).map(i => this.changeTableNamePrefix + i) }
 };
 exports.names = names;
 
