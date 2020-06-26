@@ -102,9 +102,12 @@ exports.queryBizDetail = function (region, bizName){
     `;
     
     return db.query(q, [regionList[region], bizName]);
-}
+};
 
 exports.updateBizInfoDB = function (item) {
+    
+    let lat = item.latlng.lat || item.latlng.x;
+    let lng = item.latlng.lng || item.latlng.y;
     
     //update DB on business_info
     let q = `
@@ -113,7 +116,7 @@ exports.updateBizInfoDB = function (item) {
             tel_num = $2,
             address = $3,
             road_address = $4,
-            latlng = '( ` + item.latlng.lat + ',' + item.latlng.lng + `)',
+            latlng = '(` + lat + ',' + lng + `)',
             last_updated = $5
         WHERE biz_name = $6 AND region = $7
     `;
@@ -121,7 +124,7 @@ exports.updateBizInfoDB = function (item) {
     let params = [item.biz_type, item.tel_num, item.address, 
         item.road_address, item.last_updated, item.biz_name, item.region];
 
-    return db.query(q, params).catch(e => {throw e;});
+    return db.query(q, params).catch(e => {console.error(e.stack);});
 };
 
 exports.updateDateOfBizInfo = function (item){
@@ -134,21 +137,43 @@ exports.updateDateOfBizInfo = function (item){
     
     let params = [item.last_updated, item.biz_name, item.region];
     
-    return db.query(q, params).catch(e => {throw e;});
+    return db.query(q, params).catch(e => {console.error(e.stack);});
 };
 
 exports.updateEmpty2NULL = function (){
-    //TODO : convert empty str into NULL
+    
+    let q = `
+        UPDATE business_info
+        SET tel_num = null
+        WHERE tel_num = '';
+    `;
+    
+    return db.query(q).catch(e => {console.error(e.stack);});
 };
 
 /**
  *  To prevent SQL Injection.
  */
 function verifyPrams(region, filter, index){
-    /**
-     * TODO : region must be in regionList.
-     *      filter must be in dataFilter.
-     *      members of index must be zero or positive INT.
-     */
-    return true;
+    
+    let isValid = true;
+    
+    //'region' must be in regionList.
+    if(region && !regionList.hasOwnProperty(region)){
+        isValid = false;
+    }
+    
+    //'filter' must be in dataFilter.
+    if(filter && !dataFilter.hasOwnProperty(filter)){
+        isValid = false;
+    }
+    
+    //members of index must be zero or positive INT.
+    if(index){
+        if(isNaN(Number(index.since)) || isNaN(Number(index.step))) {
+            isValid = false;
+        }
+    }
+    
+    return isValid;
 }

@@ -12,4 +12,3 @@ class VisitRecord {
 }
 
 module.exports = VisitRecord;
-

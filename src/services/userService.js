@@ -57,6 +57,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                 try{
                     searchRes = await naverSearch.search(item);
                 } catch(e){
+                    
                     //for items with no search result.(except for 429 error)
                     item.last_updated = utils.getCurrentDate();
                     db.updateDateOfBizInfo(item); //async
@@ -65,7 +66,11 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                 if(searchRes) {
                     bindSearchResult(item, searchRes);
                     item.last_updated = utils.getCurrentDate();
-                    db.updateBizInfoDB(item);  //async
+                    
+                    //async
+                    db.updateBizInfoDB(item).then(() => {
+                        db.updateEmpty2NULL();
+                    });
                 } 
             } else {
                 if(item.latlng == null){
@@ -89,12 +94,16 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         
         //query monthly visit record
         res = res.map(async item => {
-            let monthlyRes = await db.queryMonthlyVisit(region, item.biz_name);
-            item.monthly_visits = monthlyRes.rows;
+            
+            try{
+                let monthlyRes = await db.queryMonthlyVisit(region, item.biz_name);
+                item.monthly_visits = monthlyRes.rows;
+            } catch(e){
+                console.error(e.stack);
+            }
             return new VisitRecord(item); 
         });
         res = await Promise.allSettledWithFulfilled(res);
-        
         
         console.log(res);
         
@@ -122,7 +131,7 @@ exports.getBizDetail = async function (region, bizName){
         console.error("userService.js/getBizDetail() : " + e.message);
     }
     
-}
+};
 
 function isOutdated(item){
     

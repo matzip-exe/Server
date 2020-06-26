@@ -28,8 +28,12 @@ router.get("/getBizList", async (req, res, next)=>{
     //test params
     let region = "dongdaemoon";
     let filter = "distance";
-    let index = {since:0, step:10};
-    let userLatlng = {lat:37.250484 , lng:127.077548 }
+    let index = { since:0, step:10 };
+    let userLatlng = { lat:37.250606, lng:127.077528 };
+    
+    if((filter == "distance") && (userLatlng == null)){
+        filter  = "visit_count";
+    }
     
     try{
         let bizList = await userService.getBizList(region, userLatlng, filter, index);
@@ -46,7 +50,7 @@ router.get("/getBizDetail", async (req, res, next)=>{
     
     //test params
     let region = "dongdaemoon";
-    let bizName = "천하복집"
+    let bizName = "천하복집";
      
     try{
         let bizDetails = await userService.getBizDetail(region, bizName);

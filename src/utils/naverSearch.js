@@ -2,7 +2,8 @@
  * TODO: the module 'request' is deprecated.
  * Need to change the module for HTTP request.
  */
- 
+
+const axios = require("axios");
 const request = require('request');
 const searchApiHeader = {
     'X-Naver-Client-Id' : process.env.NAVER_SEARCH_CID,
@@ -37,8 +38,33 @@ exports.search = async function(item) {
     }
 };
 
-function searchOpenApi(keyword) {
+async function searchOpenApi(keyword) {
     
+    let res;
+    let requestConfig = {
+        method: 'get',
+        url: 'https://openapi.naver.com/v1/search/local?query=' + encodeURI(keyword),
+        headers: searchApiHeader
+    };
+    
+    try {
+        res = await axios(requestConfig);
+    } catch(e) {
+        
+        let error = new Error("NAVER SEARCH - " + e.response.status + " error with " + keyword);
+        error.code = e.response.status;
+        throw error;
+    }
+    
+    if(res.status == 200){
+        let result = res.data.items[0];
+        if(result) {
+            return result;
+        }
+        else
+            throw new Error("NAVER SEARCH - No search result with " + keyword);
+    }
+    /*
     return new Promise((resolve, reject)=>{
         let config = {
            url: 'https://openapi.naver.com/v1/search/local?query=' + encodeURI(keyword),
@@ -68,11 +94,37 @@ function searchOpenApi(keyword) {
             }
         });
     });
-    
+    */
 }
 
-function getLatLng(address){
+async function getLatLng(address){
     
+    let res;
+    let requestConfig = {
+        method: 'get',
+               url: 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=' + encodeURI(address),
+               headers: mapsApiHeader
+    };
+    
+    try {
+        res = await axios(requestConfig);
+    } catch(e) {
+        
+        let error = new Error("NAVER MAPS - " + e.response.status + " error with " + address); 
+        error.code = e.response.status;
+        throw error;
+    }
+    
+    if(res.status == 200){
+        let latlng = res.data.addresses[0];
+        if(latlng) {
+            return { 'x' : latlng.x, 'y' : latlng.y };
+        }
+        else
+            throw new Error("NAVER MAPS - No search result with " + address);
+    }
+    
+    /*
     return new Promise(async (resolve, reject)=>{
         let config = {
                url: 'https://naveropenapi.apigw.ntruss.com/map-geocode/v2/geocode?query=' + encodeURI(address),
@@ -103,6 +155,7 @@ function getLatLng(address){
             }
         });
     });
+    */
     
 }
 
@@ -111,7 +164,7 @@ function getSearchKeyword(item) {
     let keyword;
     
     if(item.region){
-        keyword = item.region + ' ' + item.biz_name
+        keyword = item.region + ' ' + item.biz_name;
         if(item.subkeyword){
             keyword += ' ' + item.subkeyword;
         } 
