@@ -50,8 +50,12 @@ router.get("/getBizList", async (req, res, next)=>{
         let bizList = await userService.getBizList(region, userLatlng, filter, index);
         
         console.log("origin URL : " + req.originalUrl);
-        console.log(bizList[0])
-        console.log(bizList[bizList.length-1])
+        
+         for(let e of bizList){
+            console.log(e.bizName + e.visitCount);
+        } 
+        //console.log(bizList[0])
+        //console.log(bizList[bizList.length-1])
         
         res.status(200).json(wrapInJson(bizList));
 
@@ -71,8 +75,12 @@ router.get("/getBizDetail", async (req, res, next)=>{
     try{
         let bizDetails = await userService.getBizDetail(region, bizName);
         console.log("origin URL : " + req.originalUrl);
-        console.log(bizDetails[0])
-        console.log(bizDetails[bizDetails.length-1])
+        
+        for(let e of bizDetails){
+            console.log(e.bizName);
+        } 
+        //console.log(bizDetails[0])
+        //console.log(bizDetails[bizDetails.length-1])
         res.status(200).json(wrapInJson(bizDetails));
 
     }catch (err) {

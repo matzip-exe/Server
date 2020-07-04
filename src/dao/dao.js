@@ -50,7 +50,7 @@ exports.queryBizList = function (region, filter, index) {
                 ON visit.biz_name = changed.origin_name
             ) corrected_record
             GROUP BY biz_name
-            ORDER BY ` + dataFilter[filter] +` DESC`;
+            ORDER BY ` + dataFilter[filter] +` DESC, biz_name ASC`;
             
     if (filter != "distance")
         q += ` LIMIT ` + index.step + ` OFFSET ` + index.since;
