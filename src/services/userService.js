@@ -105,10 +105,9 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         });
         res = await Promise.allSettledWithFulfilled(res);
         
-        console.log(res);
-        
+        //console.log(res);
         let end = Date.now();
-        console.log("2 : " + (end-start));
+        console.log("Time to response : " + (end-start));
         return res;
     } catch(e) {
         console.error("userService.js/getBizList() : " + e.message);

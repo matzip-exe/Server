@@ -1,5 +1,9 @@
 exports.getDistance = function (latlng1, latlng2) {
     
+    if((latlng1 == null) || (latlng2 == null)){
+        return null;
+    }
+    
     let lat1 = latlng1.lat || latlng1.y;
     let lng1 = latlng1.lng || latlng1.x;
     
