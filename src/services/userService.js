@@ -79,6 +79,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                 }
             }
             
+            //it wiil be rejceted if one of params is null.
             item.distance = utils.getDistance(item.latlng, userLatlng);
             return item;
         });
@@ -92,22 +93,12 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
             res = res.slice(index.since, index.since + index.step);
         }
         
-        //query monthly visit record
-        res = res.map(async item => {
-            
-            try{
-                let monthlyRes = await db.queryMonthlyVisit(region, item.biz_name);
-                item.monthly_visits = monthlyRes.rows;
-            } catch(e){
-                console.error(e.stack);
-            }
-            return new VisitRecord(item); 
-        });
-        res = await Promise.allSettledWithFulfilled(res);
+        //create model objects
+        res = res.map(item => new VisitRecord(item));
         
-        //console.log(res);
         let end = Date.now();
         console.log("Time to response : " + (end-start));
+        
         return res;
     } catch(e) {
         console.error("userService.js/getBizList() : " + e.message);
@@ -120,9 +111,12 @@ exports.getBizDetail = async function (region, bizName){
     try {
         let res = await db.queryBizDetail(region, bizName);
         
-        res = res.rows.map(item => {
-            return new BusinessDetail(item);
-        });
+        res = res.rows[0];
+        if(res) {
+            let monthlyRes = await db.queryMonthlyVisit(region, bizName);
+            res.monthly_visits = monthlyRes.rows;
+            res = new BusinessDetail(res);
+        }
         
         return res;
         
