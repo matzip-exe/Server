@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const logger = require("../utils/logger");
 const userService = require("../services/userService");
 
 router.use((req, res, next)=>{
@@ -13,6 +13,11 @@ router.get("/checkRegion", async (req, res, next)=>{
     
     try{
         let result = await userService.isDataExist();
+        
+        logger.writeLog("origin URL : " + req.originalUrl);
+        logger.writeLog(JSON.stringify(result));
+        logger.writeLog("================================\n\n");
+        
         res.status(200).json(wrapInJson(result));
 
     }catch (err) {
@@ -50,11 +55,15 @@ router.get("/getBizList", async (req, res, next)=>{
         let bizList = await userService.getBizList(region, userLatlng, filter, index);
         
         console.log("origin URL : " + req.originalUrl);
+        logger.writeLog("origin URL : " + req.originalUrl);
         if(bizList) {  
             for(let e of bizList){
                 console.log(e.bizName + e.visitCount);
+                logger.writeLog(JSON.stringify(e));
+        
             } 
         }
+        logger.writeLog("================================\n\n");
         
         res.status(200).json(wrapInJson(bizList));
 
@@ -75,12 +84,15 @@ router.get("/getBizDetail", async (req, res, next)=>{
     
     let region = req.query.region;
     let bizName = req.query.bizName;
-     
+    console.log(region + bizName);
     try{
         let bizDetails = await userService.getBizDetail(region, bizName);
         
         console.log("origin URL : " + req.originalUrl);
-        console.log(bizDetails)
+        console.log(bizDetails);
+        logger.writeLog("origin URL : " + req.originalUrl);
+        logger.writeLog(JSON.stringify(bizDetails));
+        logger.writeLog("\r\n================================\r\n\r\n");
         
         res.status(200).json(wrapInJson(bizDetails));
 
