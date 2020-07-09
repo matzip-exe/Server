@@ -55,14 +55,11 @@ router.get("/getBizList", async (req, res, next)=>{
     try{
         let bizList = await userService.getBizList(region, userLatlng, filter, index);
         
-        console.log("origin URL : " + req.originalUrl);
         logger.writeLog("origin URL : " + req.originalUrl);
         if(bizList) {  
-            console.log("count : " + bizList.length);
+            console.log(bizList.length + " items are returned.");
             for(let e of bizList){
-                console.log(e.bizName + e.visitCount);
                 logger.writeLog(JSON.stringify(e));
-        
             } 
         }
         logger.writeLog("================================\n\n");
@@ -90,8 +87,6 @@ router.get("/getBizDetail", async (req, res, next)=>{
     try{
         let bizDetails = await userService.getBizDetail(region, bizName);
         
-        console.log("origin URL : " + req.originalUrl);
-        console.log(bizDetails);
         logger.writeLog("origin URL : " + req.originalUrl);
         logger.writeLog(JSON.stringify(bizDetails));
         logger.writeLog("\r\n================================\r\n\r\n");

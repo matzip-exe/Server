@@ -6,5 +6,6 @@ exports.readLog = function (){
 };
 
 exports.writeLog = function (data){
+    console.log(data);
     fs.appendFileSync(logFile, data, 'utf8');
 };
