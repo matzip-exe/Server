@@ -31,11 +31,12 @@ router.get("/getBizList", async (req, res, next)=>{
     
     //test params
     /*
-    let region = "seoul";
-    let filter = "distance";
-    let index = { since:0, step:10 };
+    let region = "dongdaemoon";
+    let filter = "visit_count";
+    let index = { since:0, step:100 };
     let userLatlng = { lat:37.250606, lng:127.077528 };
     */
+    //let userLatlng = null;
     
     let region = req.query.region;
     let filter = req.query.filter;
@@ -43,11 +44,11 @@ router.get("/getBizList", async (req, res, next)=>{
     let userLatlng = { lat:req.query.lat, lng:req.query.lng };
     
     
-    if ((userLatlng.lat == null) || (userLatlng.lng == null)){
+    if ((userLatlng) && ((userLatlng.lat == null) || (userLatlng.lng == null))){
         userLatlng = null;
     }
     
-    if((filter == "distance") && (userLatlng == null)) {
+    if((filter == "distance") && (!userLatlng)) {
         filter  = "visit_count";
     }
     
@@ -57,6 +58,7 @@ router.get("/getBizList", async (req, res, next)=>{
         console.log("origin URL : " + req.originalUrl);
         logger.writeLog("origin URL : " + req.originalUrl);
         if(bizList) {  
+            console.log("count : " + bizList.length);
             for(let e of bizList){
                 console.log(e.bizName + e.visitCount);
                 logger.writeLog(JSON.stringify(e));

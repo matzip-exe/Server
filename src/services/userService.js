@@ -61,6 +61,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                     //for items with no search result.(except for 429 error)
                     item.last_updated = utils.getCurrentDate();
                     db.updateDateOfBizInfo(item); //async
+                    return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
                 }
                 
                 if(searchRes) {
@@ -88,9 +89,9 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         //distance filter
         if(filter === 'distance'){
             res.sort((op1, op2) => {
-               return op1.distance < op2.distance ? -1 : op1.distance > op2.distance ? 1 : 0;  
+               return op1.distance < op2.distance ? -1 : op1.distance > op2.distance ? 1 : op1.bizName < op2.bizName ? -1 : op1.bizName > op2.bizName ? 1 : 0;
             });
-            res = res.slice(index.since, index.since + index.step);
+            res = res.slice(index.since, Number(index.since) + Number(index.step));
         }
         
         //create model objects
