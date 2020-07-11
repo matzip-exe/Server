@@ -32,11 +32,12 @@ router.get("/getBizList", async (req, res, next)=>{
     //test params
     /*
     let region = "dongdaemoon";
-    let filter = "visit_count";
-    let index = { since:0, step:100 };
+    let filter = "distance";
+    let index = { since:0, step:200 };
     let userLatlng = { lat:37.250606, lng:127.077528 };
     */
     //let userLatlng = null;
+    
     
     let region = req.query.region;
     let filter = req.query.filter;
@@ -57,10 +58,10 @@ router.get("/getBizList", async (req, res, next)=>{
         
         logger.writeLog("origin URL : " + req.originalUrl);
         if(bizList) {  
-            console.log(bizList.length + " items are returned.");
             for(let e of bizList){
                 logger.writeLog(JSON.stringify(e));
-            } 
+            }
+            console.log(bizList.length + " items are returned.");
         }
         logger.writeLog("================================\n\n");
         

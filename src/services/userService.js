@@ -73,11 +73,11 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                         db.updateEmpty2NULL();
                     });
                 } 
-            } else {
-                if(item.latlng == null){
-                    //items which is not outdated but invalid.
-                    return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
-                }
+            }
+            
+            // Invalid items
+            if(item.latlng == null){
+                return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
             }
             
             //it wiil be rejceted if one of params is null.
