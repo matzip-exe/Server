@@ -108,4 +108,7 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# Crawler
+crawler.js
+
 # End of https://www.toptal.com/developers/gitignore/api/node,cloud9,linux

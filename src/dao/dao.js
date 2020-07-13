@@ -96,12 +96,32 @@ exports.queryBizDetail = function (region, bizName){
     }
     
     let q = `
-        SELECT tel_num, address, road_address
+        SELECT tel_num, biz_hour, address, road_address
         FROM business_info
         WHERE region = $1 AND biz_name = $2
     `;
     
     return db.query(q, [regionList[region], bizName]);
+};
+
+exports.selectAllFromBizInfo = function () {
+    
+    let q = `
+        SELECT biz_name, region, subkeyword FROM business_info 
+    `;
+    
+    return db.query(q);
+};
+
+exports.updateTelAndBizHour = function (item) {
+    let q = `
+        UPDATE business_info
+        SET tel_num = $1,
+            biz_hour = $2
+        WHERE biz_name = $3 AND region = $4
+    `;
+    
+    return db.query(q, [item.telNum, item.bizHour, item.biz_name, item.region]).catch(e => {console.error(e.stack);});
 };
 
 exports.updateBizInfoDB = function (item) {
@@ -113,15 +133,14 @@ exports.updateBizInfoDB = function (item) {
     let q = `
         UPDATE business_info
         SET biz_type = $1,
-            tel_num = $2,
-            address = $3,
-            road_address = $4,
+            address = $2,
+            road_address = $3,
             latlng = '(` + lat + ',' + lng + `)',
-            last_updated = $5
-        WHERE biz_name = $6 AND region = $7
+            last_updated = $4
+        WHERE biz_name = $5 AND region = $6
     `;
     
-    let params = [item.biz_type, item.tel_num, item.address, 
+    let params = [item.biz_type, item.address, 
         item.road_address, item.last_updated, item.biz_name, item.region];
 
     return db.query(q, params).catch(e => {console.error(e.stack);});

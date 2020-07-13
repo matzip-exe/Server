@@ -31,3 +31,13 @@ exports.getCurrentDate = function () {
     let nowDate = new Date(); 
     return nowDate.getFullYear()+'-'+(nowDate.getMonth()+1)+'-'+nowDate.getDate(); 
 };
+
+exports.sleep = function (ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+};
+
+exports.getRandomInt = function (min, max) { 
+    return Math.floor(Math.random() * (max - min)) + min;
+};

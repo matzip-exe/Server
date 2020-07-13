@@ -4,7 +4,7 @@ const logger = require("../utils/logger");
 const userService = require("../services/userService");
 
 router.use((req, res, next)=>{
-    //console.log("origin URL : " + req.originalUrl);
+    console.log("DLDIDASDOFAODSFASorigin URL : " + req.originalUrl);
     next();
 });
 
@@ -30,20 +30,20 @@ router.get("/checkRegion", async (req, res, next)=>{
 router.get("/getBizList", async (req, res, next)=>{
     
     //test params
-    /*
-    let region = "dongdaemoon";
+    
+    let region = "seoul";
     let filter = "distance";
     let index = { since:0, step:200 };
     let userLatlng = { lat:37.250606, lng:127.077528 };
-    */
+    
     //let userLatlng = null;
     
-    
+    /*
     let region = req.query.region;
     let filter = req.query.filter;
     let index = { since:req.query.since, step:req.query.step };
     let userLatlng = { lat:req.query.lat, lng:req.query.lng };
-    
+    */
     
     if ((userLatlng) && ((userLatlng.lat == null) || (userLatlng.lng == null))){
         userLatlng = null;

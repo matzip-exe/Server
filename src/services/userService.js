@@ -61,7 +61,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                     //for items with no search result.(except for 429 error)
                     item.last_updated = utils.getCurrentDate();
                     db.updateDateOfBizInfo(item); //async
-                    return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
+                    //return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
                 }
                 
                 if(searchRes) {
@@ -76,6 +76,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
             }
             
             // Invalid items
+            
             if(item.latlng == null){
                 return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
             }
@@ -142,7 +143,7 @@ function isOutdated(item){
 
 function bindSearchResult(bizInfo, searchResult) {
     bizInfo.biz_type = searchResult.category;
-    bizInfo.tel_num = searchResult.telephone;
+    //bizInfo.tel_num = bizInfo.tel_num || searchResult.telephone;
     bizInfo.address = searchResult.address;
     bizInfo.road_address = searchResult.roadAddress;
     bizInfo.latlng = searchResult.latlng;
