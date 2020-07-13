@@ -8,7 +8,6 @@ exports.subSearch = async function (){
         res  = res.rows;
         for(let item of res){
             let crawler_res = await crawler.crawl(item);
-            console.log('FF :');
             console.log(crawler_res);
             db.updateTelAndBizHour(crawler_res);
             

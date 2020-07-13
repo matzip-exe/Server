@@ -4,7 +4,7 @@ const logger = require("../utils/logger");
 const userService = require("../services/userService");
 
 router.use((req, res, next)=>{
-    console.log("DLDIDASDOFAODSFASorigin URL : " + req.originalUrl);
+    // do nothing
     next();
 });
 

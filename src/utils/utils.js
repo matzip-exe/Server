@@ -21,7 +21,6 @@ exports.getDistance = function (latlng1, latlng2) {
         
         return d.toFixed(1);
     } catch(e){
-        //throw e;
         return undefined; 
         
     }
