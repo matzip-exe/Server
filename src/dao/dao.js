@@ -57,8 +57,8 @@ exports.queryBizList = function (region, filter, index) {
         
     q += `) stats
     LEFT OUTER JOIN business_info info
-    ON stats.biz_name = info.biz_name AND info.region = $1 
-    ORDER BY ` + dataFilter[filter] + ` DESC`;
+    ON stats.biz_name = info.biz_name AND info.region = $1
+    ORDER BY ` + dataFilter[filter] + ` DESC, biz_name ASC`;
 
     return db.query(q, [regionList[region]]);
 };

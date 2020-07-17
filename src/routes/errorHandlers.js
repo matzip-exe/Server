@@ -4,12 +4,34 @@ module.exports = function (app){
     app.use(function(req, res, next) {
         //finish req-res cycle.
         res.send("404 Not found.");
-        
-        //call error handler.
-        //next();
     });
     
     // error handler
+    app.use(function(err, req, res, next) {
+        if(err.code == 401){
+            console.log("Auth Failed - " + err.code + req.originalUrl);
+            res.status(err.code || 401).json({
+                success: false,
+                message: "Unauthorized : Access to this resource is denied."
+            });
+      } else {
+          next(err);
+      }
+    });
+    
+    app.use(function(err, req, res, next) {
+        if(err.code == 403){
+            console.log("Auth Failed - " + err.code + req.originalUrl);
+            res.status(err.code || 403).json({
+                success: false,
+                message: "Forbidden : Access to this resource is denied."
+            });
+      } else {
+          next(err);
+      }
+    });
+
+    
     app.use(function(err, req, res, next) {
       // set locals, only providing error in development
       res.locals.message = err.message;
@@ -20,4 +42,4 @@ module.exports = function (app){
       res.render('error');
     });
 
-}
+};

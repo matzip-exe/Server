@@ -104,7 +104,7 @@ function getSearchKeyword(item) {
             keyword += ' ' + item.subkeyword;
         } 
     } else {
-        throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record.");
+        throw new Error("Invalid search item - need to delete '" + item.biz_name + "' from visit record." + item.region);
     }
     
     return keyword;
