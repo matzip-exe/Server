@@ -2,12 +2,14 @@ const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
 const userService = require("../services/userService");
+const authService = require("../services/authService");
 
 router.use((req, res, next)=>{
     // do nothing
     next();
 });
 
+router.get("/auth", authService.getSignedToken);
 
 router.get("/checkRegion", async (req, res, next)=>{
     
