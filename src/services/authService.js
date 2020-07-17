@@ -15,8 +15,12 @@ function getSignedToken(req, res, next){
 }
 
 function authenticate(req, res, next){
-    const token = req.headers[KeyOfToken];
+    if(req.originalUrl == process.env.AUTH_URL){
+        next();
+        return;
+    }
     
+    const token = req.headers[KeyOfToken];
     if(!token) {
         next(createError(401));
         return ;
