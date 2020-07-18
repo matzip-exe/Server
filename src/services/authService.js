@@ -5,13 +5,13 @@ module.exports.getSignedToken = getSignedToken;
 module.exports.authenticate = authenticate; 
 
 function getSignedToken(req, res, next){
+    
     if(isValidRequest(req.headers)){
         res.status(200).json({ token:issueSignedToken() });
         
     } else {
         next(createError(403));
     }
-    
 }
 
 function authenticate(req, res, next){
@@ -19,6 +19,7 @@ function authenticate(req, res, next){
         next();
         return;
     }
+    console.log(req.headers);
     
     const token = req.headers[KeyOfToken];
     if(!token) {
@@ -29,14 +30,16 @@ function authenticate(req, res, next){
     try {
         const decoded = jwt.verify(token, process.env.SECRET);
     } catch (error) { 
-        if((error.message === "TokenExpiredError")
+        if((error.name === "TokenExpiredError")
             && (isValidRequest(req.headers))){
             res.setHeader(KeyOfToken, issueSignedToken());
-            next();
-            
+            console.log("Token is re-created!");
         } else {
             next(createError(403));
+            return;
         }
+    } finally {
+        next();
     }
     
 }
@@ -48,7 +51,7 @@ function issueSignedToken() {
         },
         process.env.SECRET,
         {
-            expiresIn : '30m',
+            expiresIn : '10s',
             issuer : 'NoYes',
             subject: 'userInfo'
         }
