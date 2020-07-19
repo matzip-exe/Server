@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const logger = require("../utils/logger");
+const jwtUtils = require("../utils/jwtUtils");
+const utils = require("../utils/utils");
 const userService = require("../services/userService");
 const authService = require("../services/authService");
 
@@ -9,9 +11,16 @@ router.use((req, res, next)=>{
     next();
 });
 
-router.get("/auth", authService.getSignedToken);
+router.get("/auth", (req, res, next) => {
+    if(jwtUtils.isValidRequest(req.headers)){
+        res.status(200).json({ token : authService.getSignedToken() });
+        
+    } else {
+        next(utils.createError(403));
+    }
+});
 
-router.get("/checkRegion", async (req, res, next)=>{
+router.get("/checkRegion", async (req, res, next) => {
     
     try{
         let result = await userService.isDataExist();
@@ -23,13 +32,13 @@ router.get("/checkRegion", async (req, res, next)=>{
         res.status(200).json(wrapInJson(result));
 
     }catch (err) {
-        console.error(err.message);
+        next(utils.createError(500));
     }
     
 });
 
 
-router.get("/getBizList", async (req, res, next)=>{
+router.get("/getBizList", async (req, res, next) => {
     
     //test params
     /*
@@ -69,13 +78,13 @@ router.get("/getBizList", async (req, res, next)=>{
         res.status(200).json(wrapInJson(bizList));
 
     }catch (err) {
-        console.error(err.message);
+        next(utils.createError(500));
     }
     
 });
 
 
-router.get("/getBizDetail", async (req, res, next)=>{
+router.get("/getBizDetail", async (req, res, next) => {
     
     //test params
     /*
@@ -96,7 +105,7 @@ router.get("/getBizDetail", async (req, res, next)=>{
         res.status(200).json(wrapInJson(bizDetails));
 
     }catch (err) {
-        console.error(err.message);
+        next(utils.createError(500));
     }
     
 });

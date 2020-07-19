@@ -1,9 +1,9 @@
 var bodyParser = require("body-parser");
-const authService = require("../services/authService");
+const authMiddleware = require("../middlewares/auth");
 
 module.exports = function (app){
     
-    app.use(authService.authenticate);
+    app.use(authMiddleware);
     //add middlewares here.
     
     //middlewares for post request.

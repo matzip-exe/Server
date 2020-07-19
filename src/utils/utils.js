@@ -40,3 +40,10 @@ exports.sleep = function (ms) {
 exports.getRandomInt = function (min, max) { 
     return Math.floor(Math.random() * (max - min)) + min;
 };
+
+exports.createError = function (code) {
+    let error = new Error();
+    error.code = code;
+    
+    return error;
+};
