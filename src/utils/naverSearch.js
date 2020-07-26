@@ -1,10 +1,6 @@
-/**
- * TODO: the module 'request' is deprecated.
- * Need to change the module for HTTP request.
- */
-
 const axios = require("axios");
-const request = require('request');
+const cheerio = require("cheerio");
+
 const searchApiHeader = {
     'X-Naver-Client-Id' : process.env.NAVER_SEARCH_CID,
     'X-Naver-Client-Secret': process.env.NAVER_SEARCH_CPW

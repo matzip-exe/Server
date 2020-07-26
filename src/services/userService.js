@@ -69,9 +69,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                     item.last_updated = utils.getCurrentDate();
                     
                     //async
-                    db.updateBizInfoDB(item).then(() => {
-                        db.updateEmpty2NULL();
-                    });
+                    db.updateBizInfoDB(item);
                 } 
             }
             
@@ -143,7 +141,6 @@ function isOutdated(item){
 
 function bindSearchResult(bizInfo, searchResult) {
     bizInfo.biz_type = searchResult.category;
-    //bizInfo.tel_num = bizInfo.tel_num || searchResult.telephone;
     bizInfo.address = searchResult.address;
     bizInfo.road_address = searchResult.roadAddress;
     bizInfo.latlng = searchResult.latlng;

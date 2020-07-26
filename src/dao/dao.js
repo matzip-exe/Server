@@ -96,7 +96,7 @@ exports.queryBizDetail = function (region, bizName){
     }
     
     let q = `
-        SELECT tel_num, biz_hour, address, road_address
+        SELECT address, road_address, detail_url
         FROM business_info
         WHERE region = $1 AND biz_name = $2
     `;
@@ -113,15 +113,14 @@ exports.selectAllFromBizInfo = function () {
     return db.query(q);
 };
 
-exports.updateTelAndBizHour = function (item) {
+exports.updateDetailUrl = function (item) {
     let q = `
         UPDATE business_info
-        SET tel_num = $1,
-            biz_hour = $2
-        WHERE biz_name = $3 AND region = $4
+        SET detail_url = $1
+        WHERE biz_name = $2 AND region = $3
     `;
     
-    return db.query(q, [item.telNum, item.bizHour, item.biz_name, item.region]).catch(e => {console.error(e.stack);});
+    return db.query(q, [item.detail_url, item.biz_name, item.region]).catch(e => {console.error(e.stack);});
 };
 
 exports.updateBizInfoDB = function (item) {

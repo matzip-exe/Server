@@ -5,7 +5,7 @@
   "main": "bin/www",
   "scripts": {
     "start": "node bin/www",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --watchAll --verbose --silent"
   },
   "author": "",
   "license": "ISC",
@@ -15,7 +15,10 @@
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^8.2.1",
-    "request": "^2.88.2"
+    "pg": "^8.2.1"
+  },
+  "devDependencies": {
+    "jest": "^26.1.0",
+    "supertest": "^4.0.2"
   }
 }

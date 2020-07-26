@@ -111,4 +111,8 @@ typings/
 # Crawler
 crawler.js
 
+#test
+test/
+.travis.yml
+
 # End of https://www.toptal.com/developers/gitignore/api/node,cloud9,linux

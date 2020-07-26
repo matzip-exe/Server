@@ -2,11 +2,10 @@
 
 class BusinessDetail {
     constructor(src) {
-        this.telNum = src.tel_num || null;
-        this.bizHour = src.biz_hour || null;
         this.address = src.address || null;
         this.roadAddress = src.road_address || null;
         this.monthlyVisits = src.monthly_visits;
+        this.detailUrl = src.detail_url || null;
     }
 }
 
