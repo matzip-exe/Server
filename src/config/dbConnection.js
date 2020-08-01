@@ -26,7 +26,7 @@ const dbConfig = {
 //override date-parsing function
 pgTypes.setTypeParser(pgTypes.builtins.DATE,  function (value) {
   if (!value) { return null }
-  return value
-})
+  return value;
+});
 
 module.exports = new Pool(dbConfig);

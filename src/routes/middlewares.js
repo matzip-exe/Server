@@ -1,4 +1,3 @@
-var bodyParser = require("body-parser");
 const authMiddleware = require("../middlewares/auth");
 
 module.exports = function (app){

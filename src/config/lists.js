@@ -1,5 +1,5 @@
 exports.regionList = {
-     //region : table name
+    //region : table name
     "seoul":"서울시",
     "gangnam" : "강남구",
     "gangseo" : "강서구",

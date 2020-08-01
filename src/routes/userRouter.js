@@ -94,7 +94,7 @@ router.get("/getBizDetail", async (req, res, next) => {
     
     let region = req.query.region;
     let bizName = req.query.bizName;
-    console.log(region + bizName);
+    
     try{
         let bizDetails = await userService.getBizDetail(region, bizName);
         
