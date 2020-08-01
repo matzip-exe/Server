@@ -33,3 +33,8 @@ exports.dataFilter = {
     "visit_count" : "visit_count",
     "distance" : "visit_count"
 };
+
+exports.bizTypeList = {
+    "normal" : ["한식", "일식", "중식", "양식", "카페", "분식"],
+    "default" : "기타"
+};

@@ -63,6 +63,46 @@ exports.queryBizList = function (region, filter, index) {
     return db.query(q, [regionList[region]]);
 };
 
+exports.queryBizDetail = function (region, bizName){
+    
+    if(!verifyPrams(region)){
+        throw new Error("Parameters are not valid.");
+    }
+    
+    let q = `
+        SELECT biz_name, region, subkeyword, biz_type, latlng, detail_url
+        FROM business_info
+        WHERE region = $1 AND biz_name = $2
+    `;
+    
+    return db.query(q, [regionList[region], bizName]);
+};
+
+exports.queryBizStats = function (region, bizName) {
+    
+    let q = `
+    SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
+        FROM (
+            SELECT * 
+            FROM (
+            SELECT 
+                CASE 
+                WHEN changed.changed_name IS NULL 
+                THEN visit.biz_name 
+                ELSE changed.changed_name 
+                END AS biz_name, visit.date, visit.total_cost, visit.num_of_people
+            FROM visit_records_` + region + ` visit 
+            LEFT OUTER JOIN changed_names_` + region + ` changed
+            ON visit.biz_name = changed.origin_name
+            ) corrected_record
+            WHERE corrected_record.biz_name=$1
+        ) selected_record
+    GROUP BY biz_name
+    `;
+    
+    return db.query(q, [bizName]);
+};
+
 exports.queryMonthlyVisit = function (region, bizName){
     
     if(!verifyPrams(region)){
@@ -89,19 +129,17 @@ exports.queryMonthlyVisit = function (region, bizName){
     return db.query(q, [bizName]);
 };
 
-exports.queryBizDetail = function (region, bizName){
+exports.queryRecommendationsByBizType = function(item, bizType, count = 6) {
     
-    if(!verifyPrams(region)){
-        throw new Error("Parameters are not valid.");
-    }
-    
-    let q = `
-        SELECT address, road_address, detail_url
+     let q = `
+        SELECT biz_name, biz_type
         FROM business_info
-        WHERE region = $1 AND biz_name = $2
+        WHERE biz_name != $1 AND region = $2 AND biz_type like $3
+        ORDER BY RANDOM()
+        LIMIT $4
     `;
     
-    return db.query(q, [regionList[region], bizName]);
+    return db.query(q, [item.biz_name, item.region, "%" + bizType + "%", count]);
 };
 
 exports.selectAllFromBizInfo = function () {

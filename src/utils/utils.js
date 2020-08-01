@@ -1,3 +1,17 @@
+const lists = require('../config/lists');
+
+exports.getBizType = function (bizType) {
+    const bizTypeList = lists.bizTypeList.normal;
+    
+    for(let type of bizTypeList){
+        if(bizType.includes(type)){
+            return type;
+        }
+    }
+    
+    return lists.bizTypeList.default;
+};
+
 exports.getDistance = function (latlng1, latlng2) {
     
     try{
