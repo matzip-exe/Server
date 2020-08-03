@@ -13,7 +13,7 @@ router.get("/getLog", async (req, res, next)=>{
 });
 
 router.get("/doCrawl", async (req, res, next)=>{
-    manageService.subSearch();
+    manageService.searchForCaching();
     res.end();
 });
 

@@ -149,7 +149,7 @@ exports.queryRecommendationsByBizType = function(item, bizType, count = 6) {
 exports.selectAllFromBizInfo = function () {
     
     let q = `
-        SELECT biz_name, region, subkeyword FROM business_info 
+        SELECT biz_name, region, subkeyword, last_updated FROM business_info 
     `;
     
     return db.query(q);

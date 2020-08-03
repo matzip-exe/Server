@@ -52,7 +52,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
         //search items asynchronously
         res = res.rows.map(async item => {
             
-            if(isOutdated(item)){
+            if(utils.isOutdated(item)){
                 
                 //updates outdated data by searching with NAVER.
                 let searchRes;
@@ -67,7 +67,7 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                 }
                 
                 if(searchRes) {
-                    bindSearchResult(item, searchRes);
+                    utils.bindSearchResult(item, searchRes);
                     item.last_updated = utils.getCurrentDate();
                     
                     //async
@@ -76,7 +76,6 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
             }
             
             // Invalid items
-            
             if(item.latlng == null){
                 return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
             }
@@ -117,7 +116,7 @@ exports.getBizDetail = async function (region, bizName){
             if(!item.detail_url){
                 item.detail_url = await crawler.getDetailUrl(item);
                 
-                // TODO: !!!UPDATE DB HERE!!!
+                //async
                 db.updateDetailUrl(item);
             }
             
@@ -165,37 +164,4 @@ exports.getBizDetail = async function (region, bizName){
     } catch(e){
         console.error("userService.js/getBizDetail() : " + e.message);
     }
-    
-};
-
-function isOutdated(item){
-    
-    const dayMilis = 86400000;
-    
-    if(item.hasOwnProperty("last_updated")){
-        if((item.last_updated == null) || (Date.now() - Date.parse(item.last_updated) > dayMilis)){
-            return true;
-        } 
-    } 
-    
-    return false;
-}
-
-function bindSearchResult(bizInfo, searchResult) {
-    bizInfo.biz_type = searchResult.category;
-    bizInfo.address = searchResult.address;
-    bizInfo.road_address = searchResult.roadAddress;
-    bizInfo.latlng = searchResult.latlng;
-}
-
-Promise.allSettledWithFulfilled = async function (promises) {
-    
-    let results = await Promise.allSettled(promises);
-    results = results.reduce((resAry, item) => {
-        if(item.status == 'fulfilled'){
-            resAry.push(item.value);
-        }
-        return resAry;
-    }, []);
-    return results;
 };

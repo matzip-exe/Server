@@ -3,9 +3,11 @@ const lists = require('../config/lists');
 exports.getBizType = function (bizType) {
     const bizTypeList = lists.bizTypeList.normal;
     
-    for(let type of bizTypeList){
-        if(bizType.includes(type)){
-            return type;
+    if(bizType) {
+        for(let type of bizTypeList){
+            if(bizType.includes(type)){
+                return type;
+            }
         }
     }
     
@@ -60,4 +62,36 @@ exports.createError = function (code) {
     error.code = code;
     
     return error;
+};
+
+exports.isOutdated = function (item){
+    
+    const dayMilis = 86400000;
+    
+    if(item.hasOwnProperty("last_updated")){
+        if((item.last_updated == null) || (Date.now() - Date.parse(item.last_updated) > dayMilis)){
+            return true;
+        } 
+    } 
+    
+    return false;
+};
+
+exports.bindSearchResult = function (bizInfo, searchResult) {
+    bizInfo.biz_type = searchResult.category;
+    bizInfo.address = searchResult.address;
+    bizInfo.road_address = searchResult.roadAddress;
+    bizInfo.latlng = searchResult.latlng;
+};
+
+Promise.allSettledWithFulfilled = async function (promises) {
+    
+    let results = await Promise.allSettled(promises);
+    results = results.reduce((resAry, item) => {
+        if(item.status == 'fulfilled'){
+            resAry.push(item.value);
+        }
+        return resAry;
+    }, []);
+    return results;
 };
