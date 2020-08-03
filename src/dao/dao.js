@@ -80,6 +80,10 @@ exports.queryBizDetail = function (region, bizName){
 
 exports.queryBizStats = function (region, bizName) {
     
+    if(!verifyPrams(region)){
+        throw new Error("Parameters are not valid.");
+    }
+    
     let q = `
     SELECT biz_name, (SUM(total_cost)/SUM(num_of_people)) AS ` + dataFilter.avg_cost + `, COUNT(*) AS ` + dataFilter.visit_count + `
         FROM (

@@ -118,16 +118,25 @@ exports.getBizDetail = async function (region, bizName){
                 item.detail_url = await crawler.getDetailUrl(item);
                 
                 // TODO: !!!UPDATE DB HERE!!!
+                db.updateDetailUrl(item);
             }
             
             // Query recommend bizs
             let bizType = utils.getBizType(item.biz_type);
-            let recommendations; 
+            let recommendations = []; 
             if(bizType != bizTypeList.default){
                 recommendations = (await db.queryRecommendationsByBizType(item, bizType)).rows;
+            } else {
+                let randCnt = utils.getRandomInt(3,6);
+                for(let i=0; i<randCnt; i++) {
+                    recommendations.push(
+                        (await db.queryRecommendationsByBizType(
+                            item, bizTypeList.normal[utils.getRandomInt(0,bizTypeList.normal.length)], 1)).rows[0]);
+                }
             }
             
             item.recommendations = recommendations;
+            
             return res;
         })();
         
@@ -149,9 +158,10 @@ exports.getBizDetail = async function (region, bizName){
             
             bizInfo = new BusinessDetail(bizInfo);
         }
-        console.log(bizInfo);
-        return bizInfo;
         
+        console.log(bizInfo);
+        
+        return bizInfo;
     } catch(e){
         console.error("userService.js/getBizDetail() : " + e.message);
     }
