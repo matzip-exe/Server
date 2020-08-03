@@ -127,10 +127,23 @@ exports.getBizDetail = async function (region, bizName){
                 recommendations = (await db.queryRecommendationsByBizType(item, bizType)).rows;
             } else {
                 let randCnt = utils.getRandomInt(3,6);
+                let retryCnt = 10;
+                
                 for(let i=0; i<randCnt; i++) {
-                    recommendations.push(
-                        (await db.queryRecommendationsByBizType(
-                            item, bizTypeList.normal[utils.getRandomInt(0,bizTypeList.normal.length)], 1)).rows[0]);
+                    let r = (await db.queryRecommendationsByBizType(
+                            item, bizTypeList.normal[utils.getRandomInt(0,bizTypeList.normal.length-1)], 1)).rows[0];
+                    
+                    let contains = ()=>{return recommendations.some(elem =>{
+                        return JSON.stringify(r) === JSON.stringify(elem);
+                    })};
+                    if(!r || contains()){
+                        retryCnt--;
+                        if(retryCnt>0){
+                            i--;
+                        }
+                    } else {
+                        recommendations.push(r);
+                    }
                 }
             }
             
