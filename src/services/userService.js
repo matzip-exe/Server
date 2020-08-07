@@ -125,7 +125,10 @@ exports.getBizDetail = async function (region, bizName){
             let recommendations = []; 
             if(bizType != bizTypeList.default){
                 recommendations = (await db.queryRecommendationsByBizType(item, bizType)).rows;
-            } else {
+            } 
+            
+            //When recommendations is empty or bizType is bizTypeList.default
+            if(recommendations.length < 1) {
                 let randCnt = utils.getRandomInt(3,6);
                 let retryCnt = 10;
                 

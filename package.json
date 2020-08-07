@@ -7,7 +7,7 @@
     "start": "node bin/www",
     "test": "jest --forceExit --detectOpenHandles --verbose --silent"
   },
-  "author": "",
+  "author": "DONGGEON LEE <secmatth1996@gmail.com>",
   "license": "ISC",
   "dependencies": {
     "axios": "^0.19.2",

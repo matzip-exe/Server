@@ -12,8 +12,10 @@ router.get("/getLog", async (req, res, next)=>{
     res.send(logger.readLog());
 });
 
-router.get("/doCrawl", async (req, res, next)=>{
+router.get("/cachingImmediately", async (req, res, next)=>{
+    manageService.crawlDetailUrls();
     manageService.searchForCaching();
+    res.send("Caching started successfully.");
     res.end();
 });
 
