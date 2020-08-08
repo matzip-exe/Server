@@ -1,3 +1,11 @@
+/**
+ *  Matzip-exe Server
+ *  Author:   Dong-Geon Lee <secmatth1996@gmail.com>
+ *  Version:  1.0.0.0 release
+ *  Date:     20.08.08
+ */
+
+
 const http = require("http");
 const app = require("../src/app");
 const db = require("../src/config/dbConnection");
