@@ -1,5 +1,4 @@
 const axios = require("axios");
-const cheerio = require("cheerio");
 
 const searchApiHeader = {
     'X-Naver-Client-Id' : process.env.NAVER_SEARCH_CID,
