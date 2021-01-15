@@ -80,6 +80,10 @@ exports.getBizList = async function (region, userLatlng, filter, index) {
                 return Promise.reject(new Error("This item is outdated but invalid. - " + item.biz_name));
             }
             
+            if(!item.biz_type){
+                item.biz_type = bizTypeList.default;
+            }
+            
             //it wiil be rejceted if one of params is null.
             item.distance = utils.getDistance(item.latlng, userLatlng);
             return item;
