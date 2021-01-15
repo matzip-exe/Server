@@ -73,6 +73,10 @@
     ├── naverSearch.js
     └── utils.js
 ```
+# Demo
+
+[![Youtube](https://i.imgur.com/JZGjk9d.png)](https://www.youtube.com/watch?v=_N8Y6FO2HhQ)
+
 # 스크린샷
 
 ![sc](https://lh3.googleusercontent.com/MKt5jujL8hj5nnkJUjLsliP9vYtyhuvQ9da-ybjMGSh20aX4oWdY1gEBB3dhcFPMf3A4=w720-h310-rw)
