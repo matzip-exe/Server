@@ -1,9 +1,8 @@
-# Matzip-exe Server
+# 공인식당(server)
 ![GitHub release (latest by date)](https://img.shields.io/github/v/release/matzip-exe/Server)
 [![Build Status](https://travis-ci.com/matzip-exe/Server.svg?token=12ZCwuSzqn84fesyQH8n&branch=master)](https://travis-ci.com/matzip-exe/Server)
 ![GitHub last commit](https://img.shields.io/github/last-commit/matzip-exe/Server)
 
-# 공인식당
 서울시, 구 업무추진비 데이터를 기반으로 한 음식점 리스트🍱
 <br>
 ![logo](https://raw.githubusercontent.com/matzip-exe/Client/master/app/src/main/res/mipmap-hdpi/icon_marker_foreground.png?token=AJHV7BVH5RFRJ4QPOZOUVXS7IXMTK)
@@ -16,7 +15,7 @@
 
 |Category| - |
 | --- | --- |
-|Language|Javascript|
+|Language|JavaScript|
 |JS Runtime|Node.js|
 |Web Framework|Express|
 |Database|PostgreSQL|
